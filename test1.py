@@ -10,7 +10,7 @@ from ultralytics import YOLO
 device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device:CPU:0'
 
 # 파인튜닝된 MobileNetV3 Small 모델 로드
-finetuned_model = load_model('Fashion_MNIST_MobileNetV3Small_final.keras', compile=False)
+finetuned_model = load_model('Fashion_MNIST_MobileNetV3Large_final.keras', compile=False)
 
 # 이미지 전처리 파이프라인 설정
 def preprocess_image(img):

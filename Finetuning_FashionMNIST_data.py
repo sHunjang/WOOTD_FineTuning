@@ -42,55 +42,56 @@ with tf.device(device):
 model.compile(optimizer=Adam(learning_rate=learning_rate_initial), loss='categorical_crossentropy', metrics=['accuracy'])
 
 # 학습률 찾기 콜백
-def find_learning_rate(model, data, start_lr=1e-6, end_lr=1e-1, epochs=20):
-    K = tf.keras.backend
+# def find_learning_rate(model, data, start_lr=1e-6, end_lr=1e-1, epochs=20):
+#     K = tf.keras.backend
     
-    class LRFinder(tf.keras.callbacks.Callback):
-        def __init__(self, start_lr, end_lr, steps):
-            super(LRFinder, self).__init__()
-            self.start_lr = start_lr
-            self.end_lr = end_lr
-            self.steps = steps
-            self.lrates = np.geomspace(start_lr, end_lr, steps)
-            self.losses = []
+#     class LRFinder(tf.keras.callbacks.Callback):
+#         def __init__(self, start_lr, end_lr, steps):
+#             super(LRFinder, self).__init__()
+#             self.start_lr = start_lr
+#             self.end_lr = end_lr
+#             self.steps = steps
+#             self.lrates = np.geomspace(start_lr, end_lr, steps)
+#             self.losses = []
 
-        def on_train_begin(self, logs=None):
-            self.weights = self.model.get_weights()
-            self.best_loss = float('inf')
+#         def on_train_begin(self, logs=None):
+#             self.weights = self.model.get_weights()
+#             self.best_loss = float('inf')
 
-        def on_batch_end(self, batch, logs=None):
-            loss = logs['loss']
-            if not np.isnan(loss) and loss < self.best_loss * 4:
-                self.best_loss = loss
-                self.losses.append(loss)
-                lr = self.lrates[batch % self.steps]
-                K.set_value(self.model.optimizer.lr, lr)
-            else:
-                self.model.stop_training = True
+#         def on_batch_end(self, batch, logs=None):
+#             loss = logs['loss']
+#             if not np.isnan(loss) and loss < self.best_loss * 4:
+#                 self.best_loss = loss
+#                 self.losses.append(loss)
+#                 lr = self.lrates[batch % self.steps]
+#                 K.set_value(self.model.optimizer.lr, lr)
+#             else:
+#                 self.model.stop_training = True
 
-        def on_train_end(self, logs=None):
-            self.model.set_weights(self.weights)
-            min_len = min(len(self.lrates), len(self.losses))
-            lrates_to_plot = self.lrates[:min_len]
-            losses_to_plot = self.losses[:min_len]
-            plt.plot(lrates_to_plot, losses_to_plot)
-            plt.xscale('log')
-            plt.xlabel('Learning rate')
-            plt.ylabel('Loss')
-            plt.show()
+#         def on_train_end(self, logs=None):
+#             self.model.set_weights(self.weights)
+#             min_len = min(len(self.lrates), len(self.losses))
+#             lrates_to_plot = self.lrates[:min_len]
+#             losses_to_plot = self.losses[:min_len]
+#             plt.plot(lrates_to_plot, losses_to_plot)
+#             plt.xscale('log')
+#             plt.xlabel('Learning rate')
+#             plt.ylabel('Loss')
+#             plt.show()
 
-    steps = (len(data[0]) // batch_size) * epochs
-    callback = LRFinder(start_lr, end_lr, steps)
-    model.compile(optimizer=Adam(), loss='categorical_crossentropy')
-    model.fit(data[0], data[1], batch_size=batch_size, callbacks=[callback], epochs=epochs)
+#     steps = (len(data[0]) // batch_size) * epochs
+#     callback = LRFinder(start_lr, end_lr, steps)
+#     model.compile(optimizer=Adam(), loss='categorical_crossentropy')
+#     model.fit(data[0], data[1], batch_size=batch_size, callbacks=[callback], epochs=epochs)
+
 
 # 콜백 설정
 checkpoint = ModelCheckpoint('best_model.h5', save_best_only=True, monitor='val_loss', mode='min')
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=2, min_lr=1e-6, verbose=1)
 
-# 학습률 찾기 실행
-with tf.device(device):
-    find_learning_rate(model, (x_train, y_train))
+# # 학습률 찾기 실행
+# with tf.device(device):
+#     find_learning_rate(model, (x_train, y_train))
 
 # 모델 학습
 with tf.device(device):
