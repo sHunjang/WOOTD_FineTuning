@@ -1,6 +1,6 @@
 import tensorflow as tf
 from keras.datasets import fashion_mnist
-from keras.applications import MobileNetV3Large
+from keras.applications import MobileNetV3Small
 from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
@@ -30,7 +30,7 @@ y_test = tf.keras.utils.to_categorical(y_test, 10)
 
 # 모델 구성
 with tf.device(device):
-    base_model = MobileNetV3Large(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    base_model = MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
@@ -106,4 +106,4 @@ with tf.device(device):
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs_finetune, validation_data=(x_test, y_test), callbacks=[checkpoint, reduce_lr])
 
 # 모델 저장
-model.save('Fashion_MNIST_MobileNetV3Large_final.keras')
+model.save('Fashion_MNIST_MobileNetV3Small_final.keras')

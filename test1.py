@@ -10,7 +10,7 @@ from ultralytics import YOLO
 device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device:CPU:0'
 
 # 파인튜닝된 MobileNetV3 Small 모델 로드
-finetuned_model = load_model('Fashion_MNIST_MobileNetV3Large_final.keras', compile=False)
+finetuned_model = load_model('Fashion_MNIST_MobileNetV3Small_final.keras', compile=False)
 
 # 이미지 전처리 파이프라인 설정
 def preprocess_image(img):
@@ -60,7 +60,7 @@ hist2 = calculate_color_histogram(image2_path)
 feature1 = extract_features(Image.open(image1_path))
 feature2 = extract_features(Image.open(image2_path))
 
-shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.35)
+shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.1)
 
 print(f"초기 모양 기반 유사도: {shape_similarity*100:.2f}%")
 print(f"초기 색상 기반 유사도: {color_similarity*100:.2f}%")
@@ -102,13 +102,13 @@ if initial_combined_similarity >= 0.7:
                 bottom_features.append(feature_vector)
 
     if len(top_features) >= 2:
-        shape_sim, color_sim, final_sim = combined_similarity(top_features[0], top_features[1], hist1, hist2, alpha=0.3)
+        shape_sim, color_sim, final_sim = combined_similarity(top_features[0], top_features[1], hist1, hist2, alpha=0.1)
         print(f"상의 모양 기반 유사도: {shape_sim*100:.2f}%")
         print(f"상의 색상 기반 유사도: {color_sim*100:.2f}%")
         print(f"상의 최종 결합 유사도: {final_sim*100:.2f}%")
 
     if len(bottom_features) >= 2:
-        shape_sim, color_sim, final_sim = combined_similarity(bottom_features[0], bottom_features[1], hist1, hist2, alpha=0.3)
+        shape_sim, color_sim, final_sim = combined_similarity(bottom_features[0], bottom_features[1], hist1, hist2, alpha=0.1)
         print(f"하의 모양 기반 유사도: {shape_sim*100:.2f}%")
         print(f"하의 색상 기반 유사도: {color_sim*100:.2f}%")
         print(f"하의 최종 결합 유사도: {final_sim*100:.2f}%")

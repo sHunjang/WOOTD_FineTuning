@@ -44,7 +44,7 @@ def extract_features(img):
         feature_vector = mobilenet_v3(input_tensor).cpu().numpy()
     return feature_vector
 
-def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.5):
+def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.2):
     # 모양 기반 유사도 계산
     shape_similarity = cosine_similarity(feature1, feature2)[0][0]
 
@@ -67,7 +67,7 @@ hist2 = calculate_color_histogram(image2_path)
 feature1 = extract_features(Image.open(image1_path))
 feature2 = extract_features(Image.open(image2_path))
 
-shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.5)
+shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.2)
 
 print(f"초기 모양 기반 유사도: {shape_similarity}")
 print(f"초기 색상 기반 유사도: {color_similarity}")
@@ -126,6 +126,7 @@ if initial_combined_similarity >= 0.7:
         print(f"상의 모양 기반 유사도: {shape_sim}")
         print(f"상의 색상 기반 유사도: {color_sim}")
         print(f"상의 최종 결합 유사도: {final_sim}")
+        print("--------------------------------------------------------")
 
     if len(bottom_features) >= 2:  # 하의 객체가 2개 이상일 때만 유사도 계산
         shape_sim, color_sim, final_sim = combined_similarity(bottom_features[0], bottom_features[1], hist1, hist2, alpha=0.5)
