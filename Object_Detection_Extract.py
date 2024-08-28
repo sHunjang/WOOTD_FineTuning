@@ -11,7 +11,7 @@ import numpy as np
 model = YOLO('TOP&BOTTOM_Detection.pt')
 
 # 파인튜닝된 MobileNetV2 모델 로드
-fine_tuned_model = load_model('FineTuned_MobileNetV2_final.h5')
+fine_tuned_model = load_model('FineTuned_MobileNetV3Large_final.h5')
 
 # MPS 장치 설정 (사용 가능하면 MPS, 그렇지 않으면 CPU)
 device = 'mps' if torch.backends.mps.is_available() else 'cpu'

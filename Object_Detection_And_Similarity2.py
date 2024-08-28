@@ -7,7 +7,7 @@ from ultralytics import YOLO
 from sklearn.metrics.pairwise import cosine_similarity
 
 # MobileNetV3 Small 모델 로드
-mobilenet_v3 = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
+mobilenet_v3 = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.DEFAULT)
 mobilenet_v3.classifier = torch.nn.Identity()  # 마지막 분류 레이어를 제거하여 특징 추출기로 사용
 mobilenet_v3.eval()
 
@@ -57,8 +57,8 @@ def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.2):
     return shape_similarity, color_similarity, combined_similarity
 
 # 이미지 파일 경로 설정
-image1_path = 'Clothings_Combination/test_13.png'
-image2_path = 'Insta_images/test_6.png'
+image1_path = 'Clothings_Combination/test_1.png'
+image2_path = 'Insta_images/test_2.png'
 
 # 초기 색상 및 모양 기반 유사도 계산
 hist1 = calculate_color_histogram(image1_path)

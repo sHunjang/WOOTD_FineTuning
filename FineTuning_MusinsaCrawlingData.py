@@ -1,6 +1,6 @@
 import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
-from keras.applications import MobileNetV2
+from keras.applications import MobileNetV3Large
 from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
@@ -12,7 +12,7 @@ device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device
 
 # 하이퍼파라미터 설정
 batch_size = 32
-epochs_initial = 20
+epochs_initial = 30
 learning_rate_initial = 1e-4
 learning_rate_finetune = 1e-5
 
@@ -52,7 +52,7 @@ validation_generator = train_datagen.flow_from_directory(
 
 # 모델 구성
 with tf.device(device):
-    base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    base_model = MobileNetV3Large(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
