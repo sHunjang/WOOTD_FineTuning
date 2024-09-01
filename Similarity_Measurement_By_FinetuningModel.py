@@ -10,7 +10,7 @@ from ultralytics import YOLO
 device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device:CPU:0'
 
 # 파인튜닝된 MobileNetV3 Small 모델 로드
-finetuned_model = load_model('FineTuned_MobileNetV3Large_final.h5', compile=False)
+finetuned_model = load_model('FineTuned_Musinsa_final.h5', compile=False)
 
 # 이미지 전처리 파이프라인 설정
 def preprocess_image(img):
@@ -38,7 +38,7 @@ def extract_features(img):
         feature_vector = finetuned_model.predict(img)
     return feature_vector
 
-def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.2):
+def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.3):
     shape_similarity = cosine_similarity(feature1, feature2)[0][0]
     color_similarity = cosine_similarity([hist1], [hist2])[0][0]
     combined_similarity = alpha * shape_similarity + (1 - alpha) * color_similarity
@@ -46,7 +46,7 @@ def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.2):
 
 # 이미지 파일 경로 설정
 image1_path = 'Clothings_Combination/test_1.png'
-image2_path = 'Insta_images/test_2.png'
+image2_path = 'Insta_images/test_8.png'
 
 # 초기 색상 및 모양 기반 유사도 계산
 hist1 = calculate_color_histogram(image1_path)
@@ -55,7 +55,7 @@ hist2 = calculate_color_histogram(image2_path)
 feature1 = extract_features(Image.open(image1_path))
 feature2 = extract_features(Image.open(image2_path))
 
-shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.4)
+shape_similarity, color_similarity, initial_combined_similarity = combined_similarity(feature1, feature2, hist1, hist2, alpha=0.35)
 
 print(f"초기 모양 기반 유사도: {shape_similarity*100:.2f}%")
 print(f"초기 색상 기반 유사도: {color_similarity*100:.2f}%")
@@ -101,6 +101,7 @@ if initial_combined_similarity*100.0 >= 70.0:
         print(f"상의 모양 기반 유사도: {shape_sim*100:.2f}%")
         print(f"상의 색상 기반 유사도: {color_sim*100:.2f}%")
         print(f"상의 최종 결합 유사도: {final_sim*100:.2f}%")
+        print("--------------------------------------------------------")
 
     if len(bottom_features) >= 2:
         shape_sim, color_sim, final_sim = combined_similarity(bottom_features[0], bottom_features[1], hist1, hist2, alpha=0.3)
