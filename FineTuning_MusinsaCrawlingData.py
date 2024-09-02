@@ -1,6 +1,6 @@
 import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
-from keras.applications import MobileNetV3Large, MobileNetV3Small
+from keras.applications import MobileNetV3Large, MobileNetV3Small, MobileNetV2
 from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.models import Model
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
@@ -52,7 +52,7 @@ validation_generator = train_datagen.flow_from_directory(
 
 # 모델 구성
 with tf.device(device):
-    base_model = MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
@@ -93,7 +93,7 @@ with tf.device(device):
     ) #괴도키드
 
 # 모델 저장
-model.save('FineTuned_Musinsa_final.h5')
+model.save('FineTuned_Large_Musinsa_final.h5')
 
 # 테스트 데이터 생성
 test_datagen = ImageDataGenerator(rescale=1./255)
