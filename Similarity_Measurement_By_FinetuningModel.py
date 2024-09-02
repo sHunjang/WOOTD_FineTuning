@@ -1,4 +1,5 @@
 import os
+import cv2
 import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageOps
@@ -10,7 +11,7 @@ from ultralytics import YOLO
 device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device:CPU:0'
 
 # 파인튜닝된 MobileNetV3 Small 모델 로드
-finetuned_model = load_model('FineTuned_Large_Musinsa_final.h5', compile=False)
+finetuned_model = load_model('FineTuned_V2_Musinsa_final.h5', compile=False)
 
 # 이미지 전처리 파이프라인 설정
 def preprocess_image(img):
@@ -25,10 +26,24 @@ yolo_model = YOLO('/Users/seunghunjang/Desktop/WOOTD_Newmodel/TOP&BOTTOM_Detecti
 def calculate_color_histogram(image_path):
     img = Image.open(image_path).convert('RGB')
     img = img.resize((224, 224))
-    hist = img.histogram()
-    hist = np.array(hist).reshape(3, 256)
-    hist = hist / np.sum(hist)
-    return hist.flatten()
+    img = np.array(img)
+    
+    # OpenCV에서 사용할 수 있도록 RGB에서 BGR로 변환
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    
+    # 히스토그램 계산 (각 채널에 대해)
+    hist_b = cv2.calcHist([img], [0], None, [256], [0, 256])
+    hist_g = cv2.calcHist([img], [1], None, [256], [0, 256])
+    hist_r = cv2.calcHist([img], [2], None, [256], [0, 256])
+    
+    # 히스토그램 정규화
+    hist_b = cv2.normalize(hist_b, hist_b).flatten()
+    hist_g = cv2.normalize(hist_g, hist_g).flatten()
+    hist_r = cv2.normalize(hist_r, hist_r).flatten()
+    
+    # 하나의 히스토그램으로 결합
+    hist = np.concatenate([hist_b, hist_g, hist_r])
+    return hist
 
 def extract_features(img):
     if img.mode == 'RGBA':
@@ -40,7 +55,11 @@ def extract_features(img):
 
 def combined_similarity(feature1, feature2, hist1, hist2, alpha=0.3):
     shape_similarity = cosine_similarity(feature1, feature2)[0][0]
-    color_similarity = cosine_similarity([hist1], [hist2])[0][0]
+    
+    # 히스토그램 비교 - OpenCV의 히스토그램 비교 함수 사용
+    color_similarity = cv2.compareHist(np.array([hist1], dtype='float32'), 
+                                       np.array([hist2], dtype='float32'), 
+                                       cv2.HISTCMP_CORREL)
     combined_similarity = alpha * shape_similarity + (1 - alpha) * color_similarity
     return shape_similarity, color_similarity, combined_similarity
 
