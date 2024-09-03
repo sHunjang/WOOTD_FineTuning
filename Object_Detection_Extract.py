@@ -11,7 +11,7 @@ import numpy as np
 model = YOLO('TOP&BOTTOM_Detection.pt')
 
 # 파인튜닝된 MobileNetV2 모델 로드
-fine_tuned_model = load_model('FineTuned_MobileNetV3Large_final.h5')
+fine_tuned_model = load_model('FineTuned_V2_Musinsa_final.h5')
 
 # MPS 장치 설정 (사용 가능하면 MPS, 그렇지 않으면 CPU)
 device = 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -26,7 +26,7 @@ preprocess = transforms.Compose([
 # 탐지할 이미지 경로 리스트 설정
 image_paths = [
     os.path.join(os.getcwd(), 'Clothings_Combination/test_1.png'),
-    os.path.join(os.getcwd(), 'Insta_images/test_3.png')
+    os.path.join(os.getcwd(), 'Data_1.png')
 ]
 
 # YOLOv8 모델로 탐지 수행

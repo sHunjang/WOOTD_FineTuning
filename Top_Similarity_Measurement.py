@@ -14,8 +14,8 @@ def load_and_preprocess_image(img_path):
     return img_data
 
 # 이미지 경로
-image1_path = 'Clothings_Combination/test_1.png'
-image2_path = 'Insta_images/test_1.png'
+image1_path = 'Clothings_Combination/test_18.png'
+image2_path = 'Data_1.png'
 
 # MobileNetV2 모델 로드 (특징 추출을 위해 fully connected layer는 제외)
 model = MobileNetV3Large(weights='imagenet', include_top=False, pooling='avg')
@@ -30,4 +30,4 @@ features2 = model.predict(img2_data)
 # 코사인 유사도 계산
 cosine_similarity = np.dot(features1, features2.T) / (norm(features1) * norm(features2))
 
-print(f'코사인 유사도: {cosine_similarity[0][0]}')
+print(f'코사인 유사도: {cosine_similarity[0][0]*100:.2f}%')
