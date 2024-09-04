@@ -19,12 +19,12 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.implicitly_wait(5)  # 암묵적 대기 추가
 
 # 폴더 생성
-folder_name = "Top"
+folder_name = "T-Shirts"
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
 # URL 접근
-url = "https://www.musinsa.com/category/001?gf=A"
+url = "https://www.musinsa.com/category/001001?gf=A"
 driver.get(url)
 count = 0
 actions = driver.find_element(By.CSS_SELECTOR, 'body')
@@ -33,17 +33,17 @@ is_first = False
 def download_image(src, count):
     try:
         image_data = requests.get(src).content
-        image_path = os.path.join(folder_name, f'Top_{count}.jpg')
+        image_path = os.path.join(folder_name, f'MTM_{count}.jpg')
         with open(image_path, 'wb') as file:
             file.write(image_data)
         print(f'{image_path} 저장 완료')
     except Exception as e:
         print(f'{src}에서 이미지 다운로드 실패: {e}')
 
-while count < 700:
+while count < 500:
     for i in range(1, 11):
         for j in range(1, 4):
-            if count >= 700:
+            if count >= 500:
                 break  # 350장의 이미지가 저장되면 크롤링을 종료합니다.
             print(f'{i}, {j}')
             try:

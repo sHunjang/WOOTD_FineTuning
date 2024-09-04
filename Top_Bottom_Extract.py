@@ -18,7 +18,7 @@ scores = results[0].boxes.conf.numpy()  # 신뢰도 점수
 image = cv2.imread('Data_1.png')
 
 # 클래스별 저장할 폴더 경로 설정
-output_dir = {'Top': 'detected_objects/Top', 'Bottom': 'detected_objects/Bottom'}
+output_dir = {'Top': 'Extract_TOP&BOTTOM/Top', 'Bottom': 'Extract_TOP&BOTTOM/Bottom'}
 
 for i, box in enumerate(boxes):
     x1, y1, x2, y2 = map(int, box)
