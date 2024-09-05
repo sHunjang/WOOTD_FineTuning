@@ -19,12 +19,12 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.implicitly_wait(5)  # 암묵적 대기 추가
 
 # 폴더 생성
-folder_name = "T-Shirts"
+folder_name = "MTM"
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
 # URL 접근
-url = "https://www.musinsa.com/category/001001?gf=A"
+url = "https://www.musinsa.com/category/001005?gf=A"
 driver.get(url)
 count = 0
 actions = driver.find_element(By.CSS_SELECTOR, 'body')
