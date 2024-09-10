@@ -6,14 +6,16 @@ from keras.models import Model
 from keras.optimizers.legacy import Adam  # 하위 호환 Adam Optimizer 사용
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 from sklearn.metrics import classification_report, confusion_matrix
+import torch
+import torch.nn.functional as F
 
-# MPS 장치 설정 (가능한 경우 MPS, 그렇지 않으면 CPU)
-device = '/device:GPU:0' if tf.config.list_physical_devices('GPU') else '/device:CPU:0'
+# MPS 장치 설정 (사용 가능하면 MPS, 그렇지 않으면 CPU)
+device = 'gpu' if torch.backends.mps.is_available() else 'cpu'
 
 # 하이퍼파라미터 설정
 # •	배치 크기를 늘리면: 학습이 빠르게 진행되며 경사 계산이 안정적이지만, 과적합 위험이 있으며 메모리 사용량이 많아짐
 # •	배치 크기를 줄이면: 메모리 사용량이 적고 더 자주 업데이트가 이루어지지만, 학습 속도가 느릴 수 있고 경사 계산이 불안정할 수 있음
-batch_size = 64
+batch_size = 32
 
 initial_epochs = 100
 # 역할: 초기 학습 단계에서 사전 학습된 모델의 일부를 고정(freeze)하고, 새로 추가된 레이어 또는 최상단 레이어들만 학습하는 기간을 정의
@@ -30,7 +32,7 @@ fine_tune_epochs = 150
 # •	과적합 방지: 파인튜닝 과정에서 더 작은 학습률을 사용해 학습이 천천히 이루어지므로, 모델이 더 안정적으로 학습되고 과적합을 방지
 
 learning_rate_initial = 1e-4  # 사전 학습된 모델을 일부 고정(freeze)하고, 새로 추가된 레이어를 학습할 때 사용
-learning_rate_fine_tune = 1e-5  # 사전 학습된 모델의 고정된 레이어를 해제하고, 모델 전체를 미세 조정할 때 사용
+learning_rate_fine_tune = 1e-6  # 사전 학습된 모델의 고정된 레이어를 해제하고, 모델 전체를 미세 조정할 때 사용
 
 # 데이터 경로 설정
 train_dir = 'Dataset/train'  # 학습 데이터 디렉토리
@@ -75,7 +77,7 @@ test_generator = test_datagen.flow_from_directory(
 
 # 사전 학습된 MobileNetV2 모델 로드 (ImageNet weights 사용)
 with tf.device(device):  # MPS 장치 또는 GPU, CPU에 할당
-    base_model = MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    base_model = MobileNetV3Large(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
     # 모델 헤드 구성
     x = base_model.output
@@ -110,7 +112,7 @@ with tf.device(device):  # MPS 장치 또는 GPU, CPU에 할당
 
     # 미세 조정 단계 (기존 모델의 상단 레이어도 학습 가능하게 설정)
     for layer in base_model.layers:
-        layer.trainable = True
+        layer.trainable = False
 
     # 모델 재컴파일 (더 작은 학습률 사용)
     model.compile(optimizer=Adam(learning_rate=learning_rate_fine_tune),
@@ -143,4 +145,4 @@ with tf.device(device):  # MPS 장치 또는 GPU, CPU에 할당
     print('\n혼동 행렬:\n', confusion_matrix(y_true, y_pred_classes))
 
     # 최종 모델 저장
-    model.save('FineTuned_MobileNetV3Small_final.h5')
+    model.save('FineTuned_MobileNetV3Large_final.h5')
