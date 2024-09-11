@@ -9,8 +9,14 @@ from sklearn.metrics import classification_report, confusion_matrix
 import torch
 import torch.nn.functional as F
 
-# MPS 장치 설정 (사용 가능하면 MPS, 그렇지 않으면 CPU)
-device = 'gpu' if torch.backends.mps.is_available() else 'cpu'
+# MPS 장치 설정 (MPS가 가능하면 MPS, 그렇지 않으면 CPU 사용)
+if tf.config.list_physical_devices('GPU'):
+    device = '/GPU:0'
+elif tf.config.list_physical_devices('MPS'):
+    device = '/MPS:0'
+else:
+    device = '/CPU:0'
+
 
 # 하이퍼파라미터 설정
 # •	배치 크기를 늘리면: 학습이 빠르게 진행되며 경사 계산이 안정적이지만, 과적합 위험이 있으며 메모리 사용량이 많아짐
@@ -24,15 +30,15 @@ initial_epochs = 100
 # •	모델의 적응: 새로 추가된 레이어들이 빠르게 학습되면서 모델이 현재 문제에 어느 정도 적응하도록 함
 # •	안정성: 초기에는 사전 학습된 모델의 가중치를 유지한 상태에서, 새롭게 추가된 부분만 학습하여 안정적으로 시작
 
-fine_tune_epochs = 150
+fine_tune_epochs = 100
 # 역할: 초기 학습이 끝난 후, 사전 학습된 모델의 고정된 레이어를 풀어(unfreeze) 전체 모델을 학습하는 단계 / 전체 모델이 미세하게 조정되는 파인튜닝 단계에서의 학습 기간을 정의
 # •	주요 목적:
 # •	전체 모델 미세 조정: 파인튜닝 단계에서는 모델의 사전 학습된 가중치도 함께 조정되면서 전체적으로 더 나은 성능을 발휘할 수 있도록 학습
 # •	세밀한 성능 향상: 더 작은 학습률로 모델을 미세하게 조정하여, 성능을 추가적으로 개선합니다. 파인튜닝을 통해 모델의 최종 성능 극대화
 # •	과적합 방지: 파인튜닝 과정에서 더 작은 학습률을 사용해 학습이 천천히 이루어지므로, 모델이 더 안정적으로 학습되고 과적합을 방지
 
-learning_rate_initial = 1e-4  # 사전 학습된 모델을 일부 고정(freeze)하고, 새로 추가된 레이어를 학습할 때 사용
-learning_rate_fine_tune = 1e-6  # 사전 학습된 모델의 고정된 레이어를 해제하고, 모델 전체를 미세 조정할 때 사용
+learning_rate_initial = 1e-5  # 사전 학습된 모델을 일부 고정(freeze)하고, 새로 추가된 레이어를 학습할 때 사용
+learning_rate_fine_tune = 1e-5  # 사전 학습된 모델의 고정된 레이어를 해제하고, 모델 전체를 미세 조정할 때 사용
 
 # 데이터 경로 설정
 train_dir = 'Dataset/train'  # 학습 데이터 디렉토리
@@ -77,7 +83,7 @@ test_generator = test_datagen.flow_from_directory(
 
 # 사전 학습된 MobileNetV2 모델 로드 (ImageNet weights 사용)
 with tf.device(device):  # MPS 장치 또는 GPU, CPU에 할당
-    base_model = MobileNetV3Large(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    base_model = MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
     # 모델 헤드 구성
     x = base_model.output
